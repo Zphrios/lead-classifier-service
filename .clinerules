@@ -1,0 +1,6 @@
+# Cline Rules
+
+- Always enforce Strict JSON output format using Pydantic.
+- Never hardcode API Keys or Model Names in code; use environment variables.
+- Keep the FastAPI endpoints decoupled from database logic.
+- Write standard modular Python (main.py, models.py, schemas.py).
