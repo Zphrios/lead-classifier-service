@@ -1,0 +1,620 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-intake",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fc728fec-8440-4147-ab0d-22d7f82520ea",
+      "name": "Webhook",
+      "webhookId": "46c799c6-ec58-4ab2-b58c-cfca08d6b460"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/classify",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"message\": \"={{ $json.body.message }}\",\n  \"business_type\": \"={{ $json.body.business_type }}\",\n  \"business_name\": \"={{ $json.body.business_name }}\",\n  \"contact_info\": \"={{ $json.body.contact_info }}\",\n  \"customer_name\": \"={{ $json.body.customer_name }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a30f171a-c590-4bd1-852b-3b2cb5210026",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "69c4c519-77eb-4c88-ab05-1ce2ed14a8c1",
+              "leftValue": "={{ $json.needs_human }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "eb314979-0984-4193-bfc5-8b5fc07de5b3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"reply\": \"={{ $json.suggested_reply }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        96
+      ],
+      "id": "3606d433-931d-41dc-99bd-95d3859d2dd9",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "fromEmail": "arakwish@gmail.com",
+        "toEmail": "arakwish@gmail.com",
+        "subject": "🚨 Escalation Required: Lead Needs Human Intervention",
+        "html": "=🚨 Escalation Alert: Customer Needs Human Assistance\nCustomer Message: {{ $node[\"Webhook\"].json.body.message }}\nReason: {{ $node[\"HTTP Request\"].json.reason }}\nContact Info: {{ $node[\"Webhook\"].json.body.contact_info }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        896,
+        -96
+      ],
+      "id": "a8c5f892-18cc-43a4-a008-0a69f818b684",
+      "name": "Send an Email",
+      "webhookId": "9ca77e79-f779-479e-97f8-710144f889ed",
+      "credentials": {
+        "smtp": {
+          "id": "5Brxm0N5DvjJNn3S",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app0Rq9Jtiremhtfk",
+          "mode": "list",
+          "cachedResultName": "AI Lead Management System - Demo",
+          "cachedResultUrl": "https://airtable.com/app0Rq9Jtiremhtfk"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblqzxfywk4Jev9yK",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/app0Rq9Jtiremhtfk/tblqzxfywk4Jev9yK"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Needs_Human": "={{ $node[\"HTTP Request\"].json.needs_human }}",
+            "Full_Name": "={{ $node[\"Webhook\"].json.body.customer_name }}",
+            "Contact_Info": "={{ $node[\"Webhook\"].json.body.contact_info }}",
+            "Original_Message": "={{ $node[\"Webhook\"].json.body.message }}",
+            "Intent_Type": "={{ $node[\"HTTP Request\"].json.intent }}",
+            "Priority": "={{ $node[\"HTTP Request\"].json.priority }}",
+            "Human_Reviewer_Notes": "={{ $node[\"HTTP Request\"].json.reason }}",
+            "Suggested_Reply": "={{ $node[\"HTTP Request\"].json.suggested_reply }}",
+            "AI_Confidence": "={{ $node[\"HTTP Request\"].json.confidence }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full_Name",
+              "displayName": "Full_Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contact_Info",
+              "displayName": "Contact_Info",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Original_Message",
+              "displayName": "Original_Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Business_Type",
+              "displayName": "Business_Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Retail",
+                  "value": "Retail"
+                },
+                {
+                  "name": "Service",
+                  "value": "Service"
+                },
+                {
+                  "name": "Healthcare",
+                  "value": "Healthcare"
+                },
+                {
+                  "name": "Education",
+                  "value": "Education"
+                },
+                {
+                  "name": "Finance",
+                  "value": "Finance"
+                },
+                {
+                  "name": "Technology",
+                  "value": "Technology"
+                },
+                {
+                  "name": "Hospitality",
+                  "value": "Hospitality"
+                },
+                {
+                  "name": "Real Estate",
+                  "value": "Real Estate"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                },
+                {
+                  "name": "Food & Beverage",
+                  "value": "Food & Beverage"
+                },
+                {
+                  "name": "Services",
+                  "value": "Services"
+                },
+                {
+                  "name": "Events",
+                  "value": "Events"
+                },
+                {
+                  "name": "Fitness",
+                  "value": "Fitness"
+                },
+                {
+                  "name": "E-commerce",
+                  "value": "E-commerce"
+                },
+                {
+                  "name": "Media",
+                  "value": "Media"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Intent_Type",
+              "displayName": "Intent_Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Inquiry",
+                  "value": "Inquiry"
+                },
+                {
+                  "name": "Support",
+                  "value": "Support"
+                },
+                {
+                  "name": "Sales",
+                  "value": "Sales"
+                },
+                {
+                  "name": "Complaint",
+                  "value": "Complaint"
+                },
+                {
+                  "name": "Collaboration",
+                  "value": "Collaboration"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                },
+                {
+                  "name": "Pricing Request",
+                  "value": "Pricing Request"
+                },
+                {
+                  "name": "Consultation",
+                  "value": "Consultation"
+                },
+                {
+                  "name": "Quote Request",
+                  "value": "Quote Request"
+                },
+                {
+                  "name": "Booking Inquiry",
+                  "value": "Booking Inquiry"
+                },
+                {
+                  "name": "Partnership",
+                  "value": "Partnership"
+                },
+                {
+                  "name": "Upgrade Request",
+                  "value": "Upgrade Request"
+                },
+                {
+                  "name": "Information Request",
+                  "value": "Information Request"
+                },
+                {
+                  "name": "Demo Request",
+                  "value": "Demo Request"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "High",
+                  "value": "High"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "Low",
+                  "value": "Low"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI_Confidence",
+              "displayName": "AI_Confidence",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Suggested_Reply",
+              "displayName": "Suggested_Reply",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Needs_Human",
+              "displayName": "Needs_Human",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Awaiting Response",
+                  "value": "Awaiting Response"
+                },
+                {
+                  "name": "Responded",
+                  "value": "Responded"
+                },
+                {
+                  "name": "Escalated",
+                  "value": "Escalated"
+                },
+                {
+                  "name": "Closed",
+                  "value": "Closed"
+                },
+                {
+                  "name": "New Lead",
+                  "value": "New Lead"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created_At",
+              "displayName": "Created_At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Business_Profile",
+              "displayName": "Business_Profile",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Human_Reviewer_Notes",
+              "displayName": "Human_Reviewer_Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Source_Channel",
+              "displayName": "Source_Channel",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Web Form",
+                  "value": "Web Form"
+                },
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "Chat",
+                  "value": "Chat"
+                },
+                {
+                  "name": "Phone",
+                  "value": "Phone"
+                },
+                {
+                  "name": "Walk-in",
+                  "value": "Walk-in"
+                },
+                {
+                  "name": "Referral",
+                  "value": "Referral"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                },
+                {
+                  "name": "Website",
+                  "value": "Website"
+                },
+                {
+                  "name": "Instagram",
+                  "value": "Instagram"
+                },
+                {
+                  "name": "Facebook",
+                  "value": "Facebook"
+                },
+                {
+                  "name": "LinkedIn",
+                  "value": "LinkedIn"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "cce9d1fb-a712-4e9c-b840-6662b8755d92",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "f1OVRbjxkOzKoRBx",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {},
+          "params": {},
+          "query": {},
+          "body": {
+            "message": "Hi, I need to book a dental checkup appointment tomorrow evening.",
+            "business_type": "Clinic",
+            "business_name": "Smile Dental Clinic",
+            "contact_info": "+201012345678",
+            "customer_name": "Ahmed"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3bdedaad-4861-47da-923e-72f89b90b4d9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1bd7ea8cbd2211f44327c2cfde2bb02345515fc561708860dfa3148089191dd5"
+  },
+  "nodeGroups": [],
+  "id": "u6R8sP7s4HrnjLUz",
+  "tags": []
+}
