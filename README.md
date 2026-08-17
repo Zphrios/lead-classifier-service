@@ -26,22 +26,23 @@ Demonstrates automatic detection of emergency/complaint intents, triggering imme
 
 ## 🏗️ Architecture Overview
 
+```text
 [ Incoming Lead / Webhook / Form ]
-│
-▼
-[ n8n Orchestrator ]
-│
-▼ (REST API Call)
-[ FastAPI Classification Engine ]
-│
-▼ (Local Inference)
-[ Ollama - Llama 3.2 (3B) ]
-│
-▼ (Structured JSON Response)
-[ Dynamic Routing Engine ]
-├── Booking / General Lead ──► [ Airtable CRM: Active Lead ]
-└── Urgent / Complaint     ──► [ Airtable: Flagged Urgent ] + [ Instant Email Alert ]
-
+                │
+                ▼
+      [ n8n Orchestrator ]
+                │
+                ▼ (REST API Call)
+   [ FastAPI Classification Engine ]
+                │
+                ▼ (Local Inference)
+    [ Ollama - Llama 3.2 (3B) ]
+                │
+                ▼ (Structured JSON Response)
+      [ Dynamic Routing Engine ]
+       ├── Booking / General Lead ──► [ Airtable CRM: Active Lead ]
+       └── Urgent / Complaint     ──► [ Airtable: Flagged Urgent ] + [ Instant Email Alert ]
+```
 
 ---
 
